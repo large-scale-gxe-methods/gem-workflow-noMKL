@@ -77,6 +77,25 @@ task run_tests {
 	}
 }
 
+task cat_results {
+
+	Array[File] results_array
+
+	command {
+		head -1 ${results_array[0]} > all_results.txt && \
+			for res in ${sep=" " results_array}; do tail -n +2 $res >> all_results.txt; done
+	}
+	
+	runtime {
+		docker: "quay.io/large-scale-gxe-methods/gem-workflow"
+		disks: "local-disk 2*size(results_array) HDD"
+	}
+	output {
+		File all_results = "all_results.txt"
+	}
+}
+
+
 workflow run_GEM {
 
 	Array[File] genofiles
@@ -124,6 +143,11 @@ workflow run_GEM {
 				cpu = cpu,
 				disk = disk
 		}
+	}
+
+	call cat_results {
+		input:
+			results_array = run_tests.out
 	}
 
 	parameter_meta {
