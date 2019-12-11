@@ -1,5 +1,6 @@
 FROM ubuntu
 
+# Install Intel Math Kernel Library
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install gcc g++ gfortran wget cpio zlib1g-dev && \
   cd /tmp && \
   wget -q http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/15275/l_mkl_2019.3.199.tgz && \
@@ -15,6 +16,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install gcc g++ 
   ldconfig && \
   echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /etc/bash.bashrc
 
+# Install Boost
 ENV LD_LIBRARY_PATH=/opt/intel/compilers_and_libraries_2019.3.199/linux/tbb/lib/intel64_lin/gcc4.7:/opt/intel/compilers_and_libraries_2019.3.199/linux/compiler/lib/intel64_lin:/opt/intel/compilers_and_libraries_2019.3.199/linux/mkl/lib/intel64_lin
 ENV CPATH=/opt/intel/compilers_and_libraries_2019.3.199/linux/mkl/include
 ENV NLSPATH=/opt/intel/compilers_and_libraries_2019.3.199/linux/mkl/lib/intel64_lin/locale/%l_%t/%N
@@ -22,13 +24,14 @@ ENV LIBRARY_PATH=/opt/intel/compilers_and_libraries_2019.3.199/linux/tbb/lib/int
 ENV MKLROOT=/opt/intel/compilers_and_libraries_2019.3.199/linux/mkl
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ENV PKG_CONFIG_PATH=/opt/intel/compilers_and_libraries_2019.3.199/linux/mkl/bin/pkgconfig
-
 RUN wget -q https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.gz && \
   tar -xzf boost_1_71_0.tar.gz && \
   cd boost_1_71_0 && \
   ./bootstrap.sh && \
   ./b2 install
-  
+
+# Install GEM from source (and store version so cache rebuilds when GEM source code updates)
+ADD https://api.github.com/repos/large-scale-gxe-methods/GEM/git/refs/heads/master github_GEM_version.json
 RUN apt-get -y install git make && \
   git clone https://github.com/large-scale-gxe-methods/GEM && \
   cd /GEM/src/ && \
@@ -38,4 +41,5 @@ RUN apt-get -y install git make && \
   make && \
   mv /GEM/src/GEM /GEM/GEM
 
+# Separate bash script for preprocessing of inputs 
 COPY rearrange_covars.sh /
