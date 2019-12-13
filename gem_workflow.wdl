@@ -8,7 +8,7 @@ task rearrange_covars {
 	}
 
 	runtime {
-		docker: "quay.io/large-scale-gxe-methods/gem-workflow"
+		docker: "ubuntu:latest"
 	}	
 
 	output {
@@ -87,8 +87,8 @@ task cat_results {
 	}
 	
 	runtime {
-		docker: "quay.io/large-scale-gxe-methods/gem-workflow"
-		disks: "local-disk 2*size(results_array) HDD"
+		docker: "ubuntu:latest"
+		disks: "local-disk 10 HDD"
 	}
 	output {
 		File all_results = "all_results.txt"
