@@ -8,7 +8,6 @@
   "run_GEM.covar_headers": "cov1 cov2 cov3",
   "run_GEM.exposures": "cov1 cov3",
   "run_GEM.robust": "true",
-  "run_GEM.out_names": ["testset", "testset2"],
   "run_GEM.memory": "1",
   "run_GEM.disk": "1"
 }

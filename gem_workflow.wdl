@@ -35,7 +35,6 @@ task run_tests {
 	Boolean robust
 	String? stream_snps = 20
 	String? tol = "0.000001"
-	String out_name
 	Int? memory = 10
 	Int? cpu = 4
 	Int? disk = 20
@@ -59,7 +58,7 @@ task run_tests {
 			"GENO_FILE_PATH\n${genofile}\n"\
 			"PHENO_FILE_PATH\n${phenofile}\n"\
 			"SAMPLE_FILE_PATH\n${samplefile}\n"\
-			"OUTPUT_PATH\n${out_name}_res"\
+			"OUTPUT_PATH\ngem_res"\
 			> GEM_Input.param
 
 		/GEM/GEM -param GEM_Input.param -maf ${maf}
@@ -73,7 +72,7 @@ task run_tests {
 	}
 
 	output {
-		File out = "${out_name}_res"
+		File out = "gem_res"
 		File param_file = "GEM_Input.param"
 	}
 }
@@ -113,7 +112,6 @@ workflow run_GEM {
 	Boolean robust
 	String? stream_snps
 	String? tol
-	Array[String] out_names
 	Int? memory
 	Int? cpu
 	Int? disk
@@ -141,7 +139,6 @@ workflow run_GEM {
 				robust = robust,
 				stream_snps = stream_snps,
 				tol = tol,
-				out_name = out_names[i],
 				memory = memory,
 				cpu = cpu,
 				disk = disk
@@ -172,7 +169,6 @@ workflow run_GEM {
                 robust: "Boolean: should robust (a.k.a. sandwich/Huber-White) standard errors be used?"
 		stream_snps: "SNP numbers for each GWAS analysis."
 		tol: "Convergence tolerance for logistic regression."
-		out_names: "Array of names to distinguish output files (e.g. chromosome numbers)."
 		memory: "Requested memory (in GB)."
 		cpu: "Minimum number of requested cores."
 		disk: "Requested disk space (in GB)."
