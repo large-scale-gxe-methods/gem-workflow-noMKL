@@ -1,5 +1,6 @@
 {
   "run_GEM.genofiles": ["example/example.bgen", "example/example.bgen"],
+  "run_GEM.maf": "0.1",
   "run_GEM.phenofile": "example/example.pheno",
   "run_GEM.sample_id_header": "sampleid",
   "run_GEM.outcome": "pheno2",

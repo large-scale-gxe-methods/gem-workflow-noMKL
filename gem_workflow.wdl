@@ -22,6 +22,7 @@ task rearrange_covars {
 task run_tests {
 
 	File genofile
+	String? maf = 0.001
 	File? samplefile
 	File phenofile
 	String sample_id_header
@@ -61,7 +62,7 @@ task run_tests {
 			"OUTPUT_PATH\n${out_name}_res"\
 			> GEM_Input.param
 
-		/GEM/GEM GEM_Input.param
+		/GEM/GEM -param GEM_Input.param -maf ${maf}
 	}
 
 	runtime {
@@ -99,6 +100,7 @@ task cat_results {
 workflow run_GEM {
 
 	Array[File] genofiles
+	String? maf
 	File? samplefile
 	File phenofile
 	String? sample_id_header
@@ -126,6 +128,7 @@ workflow run_GEM {
 		call run_tests {
 			input:
 				genofile = genofiles[i],
+				maf = maf,
 				samplefile = samplefile,
 				phenofile = phenofile,
 				sample_id_header = sample_id_header,
@@ -156,6 +159,7 @@ workflow run_GEM {
 
 	parameter_meta {
 		genofiles: "Array of genotype filepaths in .bgen format."
+		maf: "Minor allele frequency threshold for pre-filtering variants as a fraction (default is 0.001)."
 		samplefile: "Optional .sample file accompanying the .bgen file. Required for proper function if .bgen does not store sample identifiers."
 		phenofile: "Phenotype filepath."	
 		sample_id_header: "Column header name of sample ID in phenotype file."
