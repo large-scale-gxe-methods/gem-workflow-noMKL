@@ -8,7 +8,7 @@ task rearrange_covars {
 	}
 
 	runtime {
-		docker: "ubuntu:latest"
+		docker: "quay.io/large-scale-gxe-methods/gem-workflow"
 	}	
 
 	output {
@@ -35,9 +35,9 @@ task run_tests {
 	String? stream_snps = 20
 	String? tol = "0.000001"
 	String out_name
-	String? memory = 10
-	String? cpu = 4
-	String? disk = 20
+	Int? memory = 10
+	Int? cpu = 4
+	Int? disk = 20
 
 	String pheno = if binary_outcome then "1" else "0"
 	String robust01 = if robust then "1" else "0"
@@ -112,9 +112,9 @@ workflow run_GEM {
 	String? stream_snps
 	String? tol
 	Array[String] out_names
-	String? memory
-	String? cpu
-	String? disk
+	Int? memory
+	Int? cpu
+	Int? disk
 
 	call rearrange_covars {
 		input:
@@ -148,6 +148,10 @@ workflow run_GEM {
 	call cat_results {
 		input:
 			results_array = run_tests.out
+	}
+
+	output {
+		File results = cat_results.all_results
 	}
 
 	parameter_meta {
