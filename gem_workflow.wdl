@@ -22,7 +22,7 @@ task rearrange_covars {
 task run_tests {
 
 	File genofile
-	String? maf = 0.001
+	Float? maf = 0.001
 	File? samplefile
 	File phenofile
 	String sample_id_header
@@ -33,8 +33,8 @@ task run_tests {
 	String? delimiter = ","
 	String? missing = "NaN"
 	Boolean robust
-	String? stream_snps = 20
-	String? tol = "0.000001"
+	Int? stream_snps = 20
+	Float? tol = 0.000001
 	Int? memory = 10
 	Int? cpu = 4
 	Int? disk = 20
@@ -99,7 +99,7 @@ task cat_results {
 workflow run_GEM {
 
 	Array[File] genofiles
-	String? maf
+	Float? maf
 	File? samplefile
 	File phenofile
 	String? sample_id_header
@@ -110,8 +110,8 @@ workflow run_GEM {
 	String? delimiter
 	String? missing
 	Boolean robust
-	String? stream_snps
-	String? tol
+	Int? stream_snps
+	Float? tol
 	Int? memory
 	Int? cpu
 	Int? disk
