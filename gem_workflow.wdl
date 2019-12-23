@@ -43,8 +43,6 @@ task run_tests {
 	String robust01 = if robust then "1" else "0"
 
 	command {
-		
-
 		echo -e "SAMPLE_ID_HEADER\n${sample_id_header}\n"\
 			"PHENOTYPE\n${pheno}\n"\
 			"PHENO_HEADER\n${outcome}\n"\
@@ -61,6 +59,8 @@ task run_tests {
 			"OUTPUT_PATH\ngem_res"\
 			> GEM_Input.param
 
+		echo "" > resource_usage.log
+		dstat -c -d -m --nocolor 10 1>>resource_usage.log &
 		/GEM/GEM -param GEM_Input.param -maf ${maf}
 	}
 
@@ -72,8 +72,9 @@ task run_tests {
 	}
 
 	output {
-		File out = "gem_res"
 		File param_file = "GEM_Input.param"
+		File out = "gem_res"
+		File resource_usage = "resource_usage.log"
 	}
 }
 
@@ -152,6 +153,7 @@ workflow run_GEM {
 
 	output {
 		File results = cat_results.all_results
+		Array[File] resource_usage = run_tests.resource_usage
 	}
 
 	parameter_meta {
