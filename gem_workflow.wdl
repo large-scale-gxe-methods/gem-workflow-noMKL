@@ -38,6 +38,7 @@ task run_tests {
 	Int? memory = 10
 	Int? cpu = 4
 	Int? disk = 20
+	Int? threads = 2
 
 	String pheno = if binary_outcome then "1" else "0"
 	String robust01 = if robust then "1" else "0"
@@ -61,7 +62,7 @@ task run_tests {
 
 		echo "" > resource_usage.log
 		dstat -c -d -m --nocolor 10 1>>resource_usage.log &
-		/GEM/GEM -param GEM_Input.param -maf ${maf}
+		/GEM/GEM -param GEM_Input.param -maf ${maf} -threads ${threads}
 	}
 
 	runtime {
@@ -116,6 +117,7 @@ workflow run_GEM {
 	Int? memory
 	Int? cpu
 	Int? disk
+	Int? threads
 
 	call rearrange_covars {
 		input:
@@ -142,7 +144,8 @@ workflow run_GEM {
 				tol = tol,
 				memory = memory,
 				cpu = cpu,
-				disk = disk
+				disk = disk,
+				threads = threads
 		}
 	}
 
@@ -174,6 +177,7 @@ workflow run_GEM {
 		memory: "Requested memory (in GB)."
 		cpu: "Minimum number of requested cores."
 		disk: "Requested disk space (in GB)."
+		threads: "Number of threads GEM should use for parallelization over variants."
 	}
 
         meta {
