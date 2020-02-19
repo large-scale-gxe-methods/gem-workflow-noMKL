@@ -25,7 +25,7 @@ task run_tests {
 	Float? maf = 0.001
 	File? samplefile
 	File phenofile
-	String sample_id_header
+	String? sample_id_header = "sampleID"
 	String outcome
 	Boolean binary_outcome
 	String covar_headers
@@ -164,7 +164,7 @@ workflow run_GEM {
 		maf: "Minor allele frequency threshold for pre-filtering variants as a fraction (default is 0.001)."
 		samplefile: "Optional .sample file accompanying the .bgen file. Required for proper function if .bgen does not store sample identifiers."
 		phenofile: "Phenotype filepath."	
-		sample_id_header: "Column header name of sample ID in phenotype file."
+		sample_id_header: "Optional column header name of sample ID in phenotype file."
 		outcome: "Column header name of phenotype data in phenotype file."
                 binary_outcome: "Boolean: is the outcome binary? Otherwise, quantitative is assumed."
 		covar_headers: "Column header names of the selected covariates in the pheno data file (space-delimited)."
