@@ -1,24 +1,3 @@
-task rearrange_covars {
-
-	String covar_headers
-	String exposures
-
-	command {
-		/rearrange_covars.sh "${covar_headers}" "${exposures}"
-	}
-
-	runtime {
-		docker: "quay.io/large-scale-gxe-methods/gem-workflow"
-	}	
-
-	output {
-		Array[String] rcout = read_lines(stdout())
-		String new_covars = rcout[0]
-		String int_covar_num = rcout[1]
-	}
-}
-
-
 task run_tests {
 
 	File genofile
@@ -28,41 +7,44 @@ task run_tests {
 	String? sample_id_header = "sampleID"
 	String outcome
 	Boolean binary_outcome
-	String covar_headers
-	String int_covar_num
+	String exposure_names
+	String? int_covar_names
+	String? covar_names
 	String? delimiter = ","
 	String? missing = "NaN"
 	Boolean robust
-	Int? stream_snps = 20
 	Float? tol = 0.000001
+	Int? threads = 2
+	Int? stream_snps = 20
 	Int? memory = 10
 	Int? cpu = 4
 	Int? disk = 20
-	Int? threads = 2
 
-	String pheno = if binary_outcome then "1" else "0"
+	String binary_outcome01 = if binary_outcome then "1" else "0"
 	String robust01 = if robust then "1" else "0"
 
 	command {
-		echo -e "SAMPLE_ID_HEADER\n${sample_id_header}\n"\
-			"PHENOTYPE\n${pheno}\n"\
-			"PHENO_HEADER\n${outcome}\n"\
-			"COVARIATES_HEADERS\n${covar_headers}\n"\
-			"MISSING\n${missing}\n"\
-			"ROBUST\n${robust01}\n"\
-			"STREAM_SNPS\n${stream_snps}\n"\
-			"NUM_OF_INTER_COVARIATE\n${int_covar_num}\n"\
-			"LOGISTIC_CONVERG_TOL\n${tol}\n"\
-			"DELIMINATOR\n${delimiter}\n"\
-			"GENO_FILE_PATH\n${genofile}\n"\
-			"PHENO_FILE_PATH\n${phenofile}\n"\
-			"SAMPLE_FILE_PATH\n${samplefile}\n"\
-			"OUTPUT_PATH\ngem_res"\
-			> GEM_Input.param
-
 		echo "" > resource_usage.log
 		dstat -c -d -m --nocolor 10 1>>resource_usage.log &
-		/GEM/GEM -param GEM_Input.param -maf ${maf} -threads ${threads}
+
+		/GEM/GEM \
+			--bgen ${genofile} \
+			--maf ${maf} \
+			${"--sample " + samplefile} \
+			--pheno-file ${phenofile} \
+			--sampleid-name ${sample_id_header} \
+			--pheno-name ${outcome} \
+			--pheno-type ${binary_outcome01} \
+			--exposure-names ${exposure_names} \
+			${"--int-covar-names " + int_covar_names} \
+			${"--covar-names " + covar_names} \
+			--delim ${delimiter} \
+			--missing-value ${missing} \
+			--robust ${robust01} \
+			--tol ${tol} \
+			--threads ${threads} \
+			--stream-snps ${stream_snps} \
+			--out gem_res
 	}
 
 	runtime {
@@ -73,7 +55,6 @@ task run_tests {
 	}
 
 	output {
-		File param_file = "GEM_Input.param"
 		File out = "gem_res"
 		File resource_usage = "resource_usage.log"
 	}
@@ -107,8 +88,9 @@ workflow run_GEM {
 	String? sample_id_header
 	String outcome
 	Boolean binary_outcome
-	String covar_headers
-	String exposures
+	String exposure_names
+	String? int_covar_names
+	String? covar_names
 	String? delimiter
 	String? missing
 	Boolean robust
@@ -119,11 +101,11 @@ workflow run_GEM {
 	Int? disk
 	Int? threads
 
-	call rearrange_covars {
-		input:
-			covar_headers = covar_headers,
-			exposures = exposures
-	}
+#	call rearrange_covars {
+#		input:
+#			covar_headers = covar_headers,
+#			exposures = exposures
+#	}
 
 	scatter (i in range(length(genofiles))) {
 		call run_tests {
@@ -135,8 +117,9 @@ workflow run_GEM {
 				sample_id_header = sample_id_header,
 				outcome = outcome,
 				binary_outcome = binary_outcome,
-				covar_headers = rearrange_covars.new_covars,
-				int_covar_num = rearrange_covars.int_covar_num,
+				exposure_names = exposure_names,
+				int_covar_names = int_covar_names,
+				covar_names = covar_names,
 				delimiter = delimiter,
 				missing = missing,
 				robust = robust,
@@ -167,8 +150,9 @@ workflow run_GEM {
 		sample_id_header: "Optional column header name of sample ID in phenotype file."
 		outcome: "Column header name of phenotype data in phenotype file."
                 binary_outcome: "Boolean: is the outcome binary? Otherwise, quantitative is assumed."
-		covar_headers: "Column header names of the selected covariates in the pheno data file (space-delimited)."
-		exposures: "Column header name(s) of the covariates to use as exposures for genotype interaction testing (space-delimited). All exposures must also be provided as covariates."
+		exposure_names: "Column header name(s) of the exposures for genotype interaction testing (space-delimited)."
+		int_covar_names: "Column header name(s) of any covariates for which genotype interactions should be included for adjustment in regression (space-delimited). These terms will not be included in any multi-exposure interaction tests. This set should not overlap with exposures or covar_names."
+		covar_names: "Column header name(s) of any covariates for which only main effects should be included selected covariates in the pheno data file (space-delimited). This set should not overlap with exposures or int_covar_names."
 		delimiter: "Delimiter used in the phenotype file."
 		missing: "Missing value key of phenotype file."
                 robust: "Boolean: should robust (a.k.a. sandwich/Huber-White) standard errors be used?"
@@ -183,7 +167,7 @@ workflow run_GEM {
         meta {
                 author: "Kenny Westerman"
                 email: "kewesterman@mgh.harvard.edu"
-                description: "Run interaction tests using GEM and return a table of summary statistics for 1-DF and 2-DF tests."
+                description: "Run interaction tests using GEM and return a table of summary statistics for K-DF interaction and (K+1)-DF joint tests."
         }
 }
 

@@ -40,6 +40,3 @@ RUN apt-get -y install git make dstat && \
   ls -l && \
   make && \
   mv /GEM/src/GEM /GEM/GEM
-
-# Separate bash script for preprocessing of inputs 
-COPY rearrange_covars.sh /
