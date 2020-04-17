@@ -24,8 +24,8 @@ task run_tests {
 	String robust01 = if robust then "1" else "0"
 
 	command {
-		echo "" > resource_usage.log
-		dstat -c -d -m --nocolor 10 1>>resource_usage.log &
+		touch resource_usage.log
+		atop -x -P CPU,DSK,PRM 1 | grep -e CPU -e DSK -e '(GEM)' 1>>resource_usage.log &
 
 		/GEM/GEM \
 			--bgen ${genofile} \
