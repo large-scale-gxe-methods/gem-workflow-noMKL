@@ -1,24 +1,24 @@
 task run_tests {
 
 	File genofile
-	Float? maf = 0.001
+	Float maf
 	File? samplefile
 	File phenofile
-	String? sample_id_header = "sampleID"
+	String sample_id_header
 	String outcome
 	Boolean binary_outcome
 	String exposure_names
 	String? int_covar_names
 	String? covar_names
-	String? delimiter = ","
-	String? missing = "NaN"
+	String delimiter
+	String missing
 	Boolean robust
-	Float? tol = 0.000001
-	Int? threads = 2
-	Int? stream_snps = 20
-	Int? memory = 10
-	Int? cpu = 4
-	Int? disk = 20
+	Float tol
+	Int threads
+	Int stream_snps
+	Int memory
+	Int cpu
+	Int disk
 
 	String binary_outcome01 = if binary_outcome then "1" else "0"
 	String robust01 = if robust then "1" else "0"
@@ -82,30 +82,24 @@ task cat_results {
 workflow run_GEM {
 
 	Array[File] genofiles
-	Float? maf
+	Float? maf = 0.005
 	File? samplefile
 	File phenofile
-	String? sample_id_header
+	String? sample_id_header = "sampleID"
 	String outcome
 	Boolean binary_outcome
 	String exposure_names
 	String? int_covar_names
 	String? covar_names
-	String? delimiter
-	String? missing
+	String? delimiter = ","
+	String? missing = "NA"
 	Boolean robust
-	Int? stream_snps
-	Float? tol
-	Int? memory
-	Int? cpu
-	Int? disk
-	Int? threads
-
-#	call rearrange_covars {
-#		input:
-#			covar_headers = covar_headers,
-#			exposures = exposures
-#	}
+	Int? stream_snps = 1
+	Float? tol = 0.000001
+	Int? memory = 10
+	Int? cpu = 4
+	Int? disk = 50
+	Int? threads = 2
 
 	scatter (i in range(length(genofiles))) {
 		call run_tests {
@@ -144,7 +138,7 @@ workflow run_GEM {
 
 	parameter_meta {
 		genofiles: "Array of genotype filepaths in .bgen format."
-		maf: "Minor allele frequency threshold for pre-filtering variants as a fraction (default is 0.001)."
+		maf: "Minor allele frequency threshold for pre-filtering variants as a fraction (default is 0.005)."
 		samplefile: "Optional .sample file accompanying the .bgen file. Required for proper function if .bgen does not store sample identifiers."
 		phenofile: "Phenotype filepath."	
 		sample_id_header: "Optional column header name of sample ID in phenotype file."
