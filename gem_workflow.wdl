@@ -19,13 +19,14 @@ task run_tests {
 	Int memory
 	Int cpu
 	Int disk
+	Int monitoring_freq
 
 	String binary_outcome01 = if binary_outcome then "1" else "0"
 	String robust01 = if robust then "1" else "0"
 
 	command {
-		touch resource_usage.log
-		atop -x -P CPU,DSK,PRM 1 | grep -e CPU -e DSK -e '(GEM)' 1>>resource_usage.log &
+		dstat -c -d -m --nocolor ${monitoring_freq} > system_resource_usage.log &
+		atop -x -P PRM ${monitoring_freq} | grep '(GEM)' > process_resource_usage.log &
 
 		/GEM/GEM \
 			--bgen ${genofile} \
@@ -56,7 +57,8 @@ task run_tests {
 
 	output {
 		File out = "gem_res"
-		File resource_usage = "resource_usage.log"
+		File system_resource_usage = "system_resource_usage.log"
+		File process_resource_usage = "process_resource_usage.log"
 	}
 }
 
@@ -100,6 +102,7 @@ workflow run_GEM {
 	Int? cpu = 4
 	Int? disk = 50
 	Int? threads = 2
+	Int? monitoring_freq = 1
 
 	scatter (i in range(length(genofiles))) {
 		call run_tests {
@@ -122,7 +125,8 @@ workflow run_GEM {
 				memory = memory,
 				cpu = cpu,
 				disk = disk,
-				threads = threads
+				threads = threads,
+				monitoring_freq = monitoring_freq
 		}
 	}
 
@@ -133,7 +137,8 @@ workflow run_GEM {
 
 	output {
 		File results = cat_results.all_results
-		Array[File] resource_usage = run_tests.resource_usage
+		Array[File] system_resource_usage = run_tests.system_resource_usage
+		Array[File] process_resource_usage = run_tests.process_resource_usage
 	}
 
 	parameter_meta {
@@ -156,6 +161,7 @@ workflow run_GEM {
 		cpu: "Minimum number of requested cores."
 		disk: "Requested disk space (in GB)."
 		threads: "Number of threads GEM should use for parallelization over variants."
+		monitoring_freq: "Delay between each output for process monitoring (in seconds). Default is 1 second."
 	}
 
         meta {
