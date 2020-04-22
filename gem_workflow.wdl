@@ -24,8 +24,8 @@ task run_tests {
 	String robust01 = if robust then "1" else "0"
 
 	command {
-		touch resource_usage.log
-		atop -x -P CPU,DSK,PRM 1 | grep -e CPU -e DSK -e '(GEM)' 1>>resource_usage.log &
+		dstat -c -d -m --nocolor 1 > system_resource_usage.log &
+		atop -x -P PRM 1 | grep '(GEM)' > process_resource_usage.log &
 
 		/GEM/GEM \
 			--bgen ${genofile} \
@@ -56,7 +56,8 @@ task run_tests {
 
 	output {
 		File out = "gem_res"
-		File resource_usage = "resource_usage.log"
+		File system_resource_usage = "system_resource_usage.log"
+		File process_resource_usage = "process_resource_usage.log"
 	}
 }
 
@@ -133,7 +134,8 @@ workflow run_GEM {
 
 	output {
 		File results = cat_results.all_results
-		Array[File] resource_usage = run_tests.resource_usage
+		Array[File] system_resource_usage = run_tests.system_resource_usage
+		Array[File] process_resource_usage = run_tests.process_resource_usage
 	}
 
 	parameter_meta {
