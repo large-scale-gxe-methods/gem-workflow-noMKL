@@ -53,6 +53,8 @@ task run_tests {
 		memory: "${memory} GB"
 		cpu: "${cpu}"
 		disks: "local-disk ${disk} HDD"
+		gpu: false
+		dx_timeout: "1M"
 	}
 
 	output {
