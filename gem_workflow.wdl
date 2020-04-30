@@ -54,7 +54,7 @@ task run_tests {
 		cpu: "${cpu}"
 		disks: "local-disk ${disk} HDD"
 		gpu: false
-		dx_timeout: "1M"
+		dx_timeout: "7D0H00M"
 	}
 
 	output {
