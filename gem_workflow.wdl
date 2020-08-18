@@ -49,7 +49,7 @@ task run_tests {
 	}
 
 	runtime {
-		docker: "quay.io/large-scale-gxe-methods/gem-workflow:v1.0.0"
+		docker: "quay.io/large-scale-gxe-methods/gem-workflow:v1.1.0"
 		memory: "${memory} GB"
 		cpu: "${cpu}"
 		disks: "local-disk ${disk} HDD"
@@ -74,7 +74,7 @@ task cat_results {
 	}
 	
 	runtime {
-		docker: "ubuntu:latest"
+		docker: "ubuntu:20.04"
 		disks: "local-disk 10 HDD"
 	}
 	output {
@@ -138,7 +138,7 @@ workflow run_GEM {
 	}
 
 	output {
-		File results = cat_results.all_results
+		File gem_results = cat_results.all_results
 		Array[File] system_resource_usage = run_tests.system_resource_usage
 		Array[File] process_resource_usage = run_tests.process_resource_usage
 	}
