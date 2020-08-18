@@ -138,7 +138,7 @@ workflow run_GEM {
 	}
 
 	output {
-		File results = cat_results.all_results
+		File gem_results = cat_results.all_results
 		Array[File] system_resource_usage = run_tests.system_resource_usage
 		Array[File] process_resource_usage = run_tests.process_resource_usage
 	}
