@@ -34,7 +34,7 @@ RUN wget -q https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.t
 RUN apt-get update && apt-get -y install git make libzstd-dev && \
   git clone https://github.com/large-scale-gxe-methods/GEM && \
   cd /GEM/src/ && \
-  git checkout v1.1 && \
+  git checkout dev && \
   env && \
   pwd && \
   ls -l && \
