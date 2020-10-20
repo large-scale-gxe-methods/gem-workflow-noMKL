@@ -49,7 +49,7 @@ task run_tests {
 	}
 
 	runtime {
-		docker: "quay.io/large-scale-gxe-methods/gem-workflow:dev"
+		docker: "quay.io/large-scale-gxe-methods/gem-workflow-nomkl"
 		memory: "${memory} GB"
 		cpu: "${cpu}"
 		disks: "local-disk ${disk} HDD"
